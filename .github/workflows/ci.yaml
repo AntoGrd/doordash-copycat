@@ -1,0 +1,22 @@
+name : doordash-copycat-ci
+
+on:
+  push: 
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps: 
+      - name: build-image
+        run: docker build -t doordash-copycat .
+      
+      - name: run-container
+        run: docker run --rm doordash-copycat
+
+      - name: test-endpoints
+        run: curl -f http://localhost:8000/ || exit 1
+
+      - name: stop-clean-container
+        run: docker stop $(docker ps -q --filter "ancestor=doordash-copycat") || true
